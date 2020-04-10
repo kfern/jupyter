@@ -3,4 +3,4 @@ bs4
 pandas
 matplotlib
 seaborn
-google
+git+https://github.com/abenassi/Google-Search-API
