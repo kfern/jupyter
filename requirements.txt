@@ -4,4 +4,3 @@ bs4
 pandas
 matplotlib
 seaborn
-git+https://github.com/abenassi/Google-Search-API
