@@ -5,7 +5,7 @@ import DFInfo
 
 class TestCalc(unittest.TestCase):
 
-  def test_get(self):
+  def test_inspect(self):
     # get devuelve un df con información de interés sobre cada feature
 
     # Construir un DataFrame con tres columnas y dos filas, valores nulos, etc
@@ -20,24 +20,25 @@ class TestCalc(unittest.TestCase):
     dfX['target'] = dfX['A'] * 3.14
 
     # Act
-    r = DFInfo.get(dfX, 'target')
+    r = DFInfo.inspect(dfX, 'target')
 
     # Assertions
 
     # Tiene la estructura esperada
-    variables = ['dtype', 'nulls', 'count', 'unique']
+    variables = ['count', 'dtype', 'nulls', 'unique']
     columnas = ['feature', 'variable', 'value']
     self.assertEqual(r.shape, (len(fakeCols) * len(variables), len(columnas)), 'Tiene la estructura esperada')
 
     # Tiene las columnas esperadas
     np.testing.assert_array_equal(r.columns.values, columnas, 'No se han recibido las columnas esperadas')
     # Están las series esperadas
-    np.testing.assert_array_equal(r['variable'].unique(), variables)
+    table = r.pivot(values='value', index='feature', columns='variable')    
+    np.testing.assert_array_equal(table.columns.values, variables)
 
-    # nulls: La columna C tiene un valor nulo => 50%
+    # nulls: La columna C tiene un valor nulo => 50%    
     f = (r['variable'] == 'nulls') & (r['value'] != 0)
     actual = r.loc[f][['feature', 'value']].set_index('feature')['value']
-    self.assertEqual(actual.to_dict(), {'C': 1}, 'La columna tiene un valor nulo')
+    self.assertEqual(actual.to_dict(), {'C': 0.5}, 'La columna tiene un valor nulo')
 
     # count: El resto son no nulos
     f = (r['variable'] == 'count')
