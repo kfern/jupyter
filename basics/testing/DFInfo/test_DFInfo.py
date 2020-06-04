@@ -23,27 +23,31 @@ class TestCalc(unittest.TestCase):
     r = DFInfo.get(dfX, 'target')
 
     # Assertions
-    # Hay una fila por cada columna, excepto para el target
-    np.testing.assert_array_equal(r.index.values, fakeCols, 'No se han recibido las columnas esperadas')
 
     # Tiene la estructura esperada
-    self.assertEqual(r.shape, (3, 4), 'Tiene la estructura esperada')
+    variables = ['dtype', 'nulls', 'count', 'unique']
+    columnas = ['feature', 'variable', 'value']
+    self.assertEqual(r.shape, (len(fakeCols) * len(variables), len(columnas)), 'Tiene la estructura esperada')
 
+    # Tiene las columnas esperadas
+    np.testing.assert_array_equal(r.columns.values, columnas, 'No se han recibido las columnas esperadas')
     # Están las series esperadas
-    tmp = ['dtype', 'nulls', 'count', 'unique']
-    np.testing.assert_array_equal(r.columns.values, tmp)
+    np.testing.assert_array_equal(r['variable'].unique(), variables)
 
     # nulls: La columna C tiene un valor nulo => 50%
-    tmp = r.loc[r['nulls'] > 0]['nulls'].to_dict()    
-    self.assertEqual(tmp, {'C': 1}, 'La columna tiene un valor nulo')
+    f = (r['variable'] == 'nulls') & (r['value'] != 0)
+    actual = r.loc[f][['feature', 'value']].set_index('feature')['value']
+    self.assertEqual(actual.to_dict(), {'C': 1}, 'La columna tiene un valor nulo')
 
     # count: El resto son no nulos
-    tmp = r['count'].sum()
-    self.assertEqual(tmp, 8, 'El resto no son nulos')
+    f = (r['variable'] == 'count')
+    actual = r.loc[f][['value']].sum().values
+    self.assertEqual(actual, 8, 'El resto no son nulos')
 
     # unique
-    tmp = r['unique'].sum()
-    self.assertEqual(tmp, 6, 'TDD: Valores únicos, incluyendo los numéricos')
+    f = (r['variable'] == 'unique')
+    actual = r.loc[f][['value']].sum().values
+    self.assertEqual(actual, 6, 'Valores únicos, incluyendo los numéricos')
 
 
 # End of tests

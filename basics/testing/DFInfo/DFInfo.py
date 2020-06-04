@@ -20,5 +20,8 @@ def get(dfX, target_column):
   # Quitar el target
   df.drop(target_column, axis='index', inplace=True)
 
-  return df
+  # Devolver el resultado en formato dividido (melt)
+  df.index.name = 'feature'
+  r = df.reset_index().melt(id_vars='feature')
+  return r
 
