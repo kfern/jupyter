@@ -4,5 +4,3 @@ bs4
 pandas
 matplotlib
 seaborn
-sklearn
-pycaret
